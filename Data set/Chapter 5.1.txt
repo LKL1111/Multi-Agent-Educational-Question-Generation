@@ -1,0 +1,270 @@
+ 5.1 Introduction
+ Let’s quickly set the context for our study of the network control plane by recall
+ing Figures 4.2 and 4.3. There, we saw that the forwarding table (in the case of 
+destination-based forwarding) and the flow table (in the case of generalized forward
+ing) were the principal elements that linked the network layer’s data and control 
+planes. We learned that these tables specify the local data-plane forwarding behavior 
+of a router. We saw that in the case of generalized forwarding, the actions taken (Sec
+tion 4.4.2) could include not only forwarding a packet to a router’s output port, but 
+also dropping a packet, replicating a packet, and/or rewriting layer 2, 3 or 4 packet
+header fields.
+ In this chapter, we’ll study how those forwarding and flow tables are computed, 
+maintained and installed. In our introduction to the network layer in Section 4.1, we 
+learned that there are two possible approaches for doing so.
+ • Per-router control. Figure 5.1 illustrates the case where a routing algorithm runs 
+in each and every router; both a forwarding and a routing function are contained
+within each router. Each router has a routing component that communicates with 
+the routing components in other routers to compute the values for its forwarding 
+table. This per-router control approach has been used in the Internet for decades. 
+The OSPF and BGP protocols that we’ll study in Sections 5.3 and 5.4 are based 
+on this per-router approach to control.
+ • Logically centralized control. Figure 5.2 illustrates the case in which a logically 
+centralized controller computes and distributes the forwarding tables to be used 
+by each and every router. As we saw in Section 4.4, the  generalized match-plus
+action abstraction allows the router to perform traditional IP forwarding as well 
+as a rich set of other functions (load sharing, firewalling, and NAT) that had been 
+previously implemented in separate middleboxes.
+ The controller interacts with a control agent (CA) in each of the routers via a 
+well-defined protocol to configure and manage that router’s flow table. Typically, 
+the CA has minimum functionality; its job is to communicate with the controller, 
+and to do as the controller commands. Unlike the routing algorithms in Figure 
+5.1, the CAs do not directly interact with each other nor do they actively take part 
+in computing the forwarding table. This is a key distinction between per-router 
+control and logically centralized control.
+ By “logically centralized” control [Levin 2012] we mean that the routing 
+control service is accessed as if it were a single central service point, even though 
+the service is likely to be implemented via multiple servers for fault-tolerance, 
+and performance scalability reasons. As we will see in Section 5.5, SDN adopts 
+this notion of a logically centralized controller—an approach that is finding 
+increased use in production deployments. Google uses SDN to control the rout
+ers in its internal B4 global wide-area network that interconnects its data centers  
+[Jain 2013]. SWAN [Hong 2013], from Microsoft Research, uses a logically cen
+tralized controller to manage routing and forwarding between a wide area network 
+and a data center network. China Telecom and China Unicom are using SDN both 
+within data centers and between data centers [Li 2015]. AT&T has noted [AT&T 
+2013] that it “supports many SDN capabilities and independently defined, propri
+etary mechanisms that fall under the SDN architectural framework.”
+ 5.2 Routing Algorithms
+ In this section we’ll study routing algorithms, whose goal is to determine good 
+paths (equivalently, routes), from senders to receivers, through the network of 
+routers. Typically, a “good” path is one that has the least cost. We’ll see that in 
+practice, however, real-world concerns such as policy issues (for example, a rule 
+such as “router x, belonging to organization Y, should not forward any packets 
+originating from the network owned by organization Z ”) also come into play. We 
+note that whether the network control plane adopts a per-router control approach 
+or a logically centralized approach, there must always be a well-defined sequence 
+of routers that a packet will cross in traveling from sending to receiving host. Thus, 
+the routing algorithms that compute these paths are of fundamental importance, 
+and another candidate for our top-10 list of fundamentally important networking 
+concepts.
+ A graph is used to formulate routing problems. Recall that a graph G = (N, E) 
+is a set N of nodes and a collection E of edges, where each edge is a pair of nodes 
+from N. In the context of network-layer routing, the nodes in the graph represent 
+routers—the points at which packet-forwarding decisions are made—and the edges 
+connecting these nodes represent the physical links between these routers. Such 
+a graph abstraction of a computer network is shown in Figure 5.3. To view some 
+graphs representing real network maps, see [Dodge 2016, Cheswick 2000]; for 
+a discussion of how well different graph-based models model the Internet, see  
+[Zegura 1997, Faloutsos 1999, Li 2004].
+ As shown in Figure 5.3, an edge also has a value representing its cost. Typically, 
+an edge’s cost may reflect the physical length of the corresponding link (for example, 
+a transoceanic link might have a higher cost than a short-haul terrestrial link), the link 
+speed, or the monetary cost associated with a link. For our purposes, we’ll simply 
+take the edge costs as a given and won’t worry about how they are determined. For 
+any edge (x, y) in E, we denote c(x, y) as the cost of the edge between nodes x and y. 
+If the pair (x, y) does not belong to E, we set c(x, y) = ∞. Also, we’ll only consider 
+undirected graphs (i.e., graphs whose edges do not have a direction) in our discussion 
+here, so that edge (x, y) is the same as edge (y, x) and that c(x, y) = c(y, x); however, 
+the algorithms we’ll study can be easily extended to the case of directed links with a 
+different cost in each direction. Also, a node y is said to be a neighbor of node x if 
+(x, y) belongs to E.
+ Given that costs are assigned to the various edges in the graph abstraction, 
+a natural goal of a routing algorithm is to identify the least costly paths between 
+sources and destinations. To make this problem more precise, recall that a path 
+in a graph G = (N, E) is a sequence of nodes (x1, x2, g, xp) such that each 
+of the pairs (x1, x2), (x2, x3), g, (xp-1, xp) are edges in E. The cost of a path 
+(x1, x2, g, xp) is simply the sum of all the edge costs along the path, that is, 
+ c(x1, x2) + c(x2, x3) + g+ c(xp-1, xp). Given any two nodes x and y, there are typi
+cally many paths between the two nodes, with each path having a cost. One or more 
+of these paths is a least-cost path. The least-cost problem is therefore clear: Find a 
+path between the source and destination that has least cost. In Figure 5.3, for exam
+ple, the least-cost path between source node u and destination node w is (u, x, y, w) 
+with a path cost of 3. Note that if all edges in the graph have the same cost, the least
+cost path is also the shortest path (that is, the path with the smallest number of links 
+between the source and the destination).
+ As a simple exercise, try finding the least-cost path from node u to z in 
+Figure 5.3 and reflect for a moment on how you calculated that path. If you are 
+like most people, you found the path from u to z by examining Figure 5.3, tracing 
+a few routes from u to z, and somehow convincing yourself that the path you had 
+chosen had the least cost among all possible paths. (Did you check all of the 17 pos
+sible paths between u and z? Probably not!) Such a calculation is an example of a 
+centralized routing algorithm—the routing algorithm was run in one location, your 
+brain, with complete information about the network. Broadly, one way in which 
+we can classify routing algorithms is according to whether they are centralized or 
+decentralized.
+ • A centralized routing algorithm computes the least-cost path between a source 
+and destination using complete, global knowledge about the network. That is, the 
+algorithm takes the connectivity between all nodes and all link costs as inputs. 
+This then requires that the algorithm somehow obtain this information before 
+actually performing the calculation. The calculation itself can be run at one site 
+(e.g., a logically centralized controller as in Figure 5.2) or could be replicated in 
+the routing component of each and every router (e.g., as in Figure 5.1). The key 
+distinguishing feature here, however, is that the algorithm has complete informa
+tion about connectivity and link costs. Algorithms with global state information 
+are often referred to as link-state (LS) algorithms, since the algorithm must 
+be aware of the cost of each link in the network. We’ll study LS algorithms in  
+Section 5.2.1.
+ • In a decentralized routing algorithm, the calculation of the least-cost path is 
+carried out in an iterative, distributed manner by the routers. No node has com
+plete information about the costs of all network links. Instead, each node begins 
+with only the knowledge of the costs of its own directly attached links. Then, 
+through an iterative process of calculation and exchange of information with its 
+neighboring nodes, a node gradually calculates the least-cost path to a destination 
+or set of destinations. The decentralized routing algorithm we’ll study below in  
+Section 5.2.2 is called a distance-vector (DV) algorithm, because each node main
+tains a vector of estimates of the costs (distances) to all other nodes in the net
+work. Such decentralized algorithms, with interactive message exchange between 
+ neighboring routers is perhaps more naturally suited to control planes where the 
+routers interact directly with each other, as in Figure 5.1.
+ A second broad way to classify routing algorithms is according to whether they 
+are static or dynamic. In static routing algorithms, routes change very slowly over 
+time, often as a result of human intervention (for example, a human manually editing 
+a link costs). Dynamic routing algorithms change the routing paths as the network 
+traffic loads or topology change. A dynamic algorithm can be run either periodically 
+or in direct response to topology or link cost changes. While dynamic algorithms 
+are more responsive to network changes, they are also more susceptible to problems 
+such as routing loops and route oscillation.
+ A third way to classify routing algorithms is according to whether they are load
+sensitive or load-insensitive. In a load-sensitive algorithm, link costs vary dynami
+cally to reflect the current level of congestion in the underlying link. If a high cost 
+is associated with a link that is currently congested, a routing algorithm will tend 
+to choose routes around such a congested link. While early ARPAnet routing algo
+rithms were load-sensitive [McQuillan 1980], a number of difficulties were encoun
+tered [Huitema 1998]. Today’s Internet routing algorithms (such as RIP, OSPF, and 
+BGP) are load-insensitive, as a link’s cost does not explicitly reflect its current (or 
+recent past) level of congestion.
+ 5.2.1 The Link-State (LS) Routing Algorithm
+ Recall that in a link-state algorithm, the network topology and all link costs are 
+known, that is, available as input to the LS algorithm. In practice this is accom
+plished by having each node broadcast link-state packets to all other nodes in 
+the network, with each link-state packet containing the identities and costs of 
+its attached links. In practice (for example, with the Internet’s OSPF routing 
+protocol, discussed in Section 5.3) this is often accomplished by a link-state 
+broadcast algorithm  [Perlman 1999]. The result of the nodes’ broadcast is that 
+all nodes have an identical and complete view of the network. Each node can 
+then run the LS algorithm and compute the same set of least-cost paths as every 
+other node.
+ The link-state routing algorithm we present below is known as Dijkstra’s 
+algorithm, named after its inventor. A closely related algorithm is Prim’s algo
+rithm; see [Cormen 2001] for a general discussion of graph algorithms. Dijkstra’s 
+algorithm computes the least-cost path from one node (the source, which we will 
+refer to as u) to all other nodes in the network. Dijkstra’s algorithm is iterative and 
+has the property that after the kth iteration of the algorithm, the least-cost paths 
+are known to k destination nodes, and among the least-cost paths to all destination 
+ nodes, these k paths will have the k smallest costs. Let us define the following 
+notation:
+ • D(v): cost of the least-cost path from the source node to destination v as of this 
+iteration of the algorithm.
+ • p(v): previous node (neighbor of v) along the current least-cost path from the 
+source to v.
+ • N′: subset of nodes; v is in N′ if the least-cost path from the source to v is defini
+tively known.
+ The centralized routing algorithm consists of an initialization step followed by 
+a loop. The number of times the loop is executed is equal to the number of nodes in 
+the network. Upon termination, the algorithm will have calculated the shortest paths 
+from the source node u to every other node in the network.
+ Link-State (LS) Algorithm for Source Node u
+ 1  
+Initialization: 
+2   N’ = {u}
+ 3   for all nodes v
+ 4     if v is a neighbor of u
+ 5       then D(v) = c(u,v)
+ 6     else D(v) = ∞
+ 7
+ 8  
+Loop
+ 9   find w not in N’ such that D(w) is a minimum
+ 10  add w to N’
+ 11  update D(v) for each neighbor v of w and not in N’:
+ 12        D(v) = min(D(v), D(w)+ c(w,v) )
+ 13   /* new cost to v is either old cost to v or known
+ 14    least path cost to w plus cost from w to v */
+ 15 until N’= N
+ As an example, let’s consider the network in Figure 5.3 and compute the least
+cost paths from u to all possible destinations. A tabular summary of the algorithm’s 
+computation is shown in Table 5.1, where each line in the table gives the values of 
+the algorithm’s variables at the end of the iteration. Let’s consider the few first steps 
+in detail.
+ • In the initialization step, the currently known least-cost paths from u to its directly 
+attached neighbors, v, x, and w, are initialized to 2, 1, and 5, respectively. Note in
+ particular that the cost to w is set to 5 (even though we will soon see that a lesser-cost  
+path does indeed exist) since this is the cost of the direct (one hop) link from u to 
+w. The costs to y and z are set to infinity because they are not directly connected 
+to u.
+ • In the first iteration, we look among those nodes not yet added to the set N′ and 
+find that node with the least cost as of the end of the previous iteration. That node 
+is x, with a cost of 1, and thus x is added to the set N′. Line 12 of the LS algorithm 
+is then performed to update D(v) for all nodes v, yielding the results shown in the 
+second line (Step 1) in Table 5.1. The cost of the path to v is unchanged. The cost 
+of the path to w (which was 5 at the end of the initialization) through node x is 
+found to have a cost of 4. Hence this lower-cost path is selected and w’s predeces
+sor along the shortest path from u is set to x. Similarly, the cost to y (through x) is 
+computed to be 2, and the table is updated accordingly.
+ • In the second iteration, nodes v and y are found to have the least-cost paths (2), 
+and we break the tie arbitrarily and add y to the set N′ so that N′ now contains u, 
+x, and y. The cost to the remaining nodes not yet in N′, that is, nodes v, w, and z, 
+are updated via line 12 of the LS algorithm, yielding the results shown in the third 
+row in Table 5.1.
+ • And so on . . . 
+When the LS algorithm terminates, we have, for each node, its predecessor 
+along the least-cost path from the source node. For each predecessor, we also have its 
+predecessor, and so in this manner we can construct the entire path from the source to 
+all destinations. The forwarding table in a node, say node u, can then be constructed 
+from this information by storing, for each destination, the next-hop node on the least
+cost path from u to the destination. Figure 5.4 shows the resulting least-cost paths 
+and forwarding table in u for the network in Figure 5.3
+ What is the computational complexity of this algorithm? That is, given n nodes 
+(not counting the source), how much computation must be done in the worst case to 
+find the least-cost paths from the source to all destinations? In the first iteration, we 
+need to search through all n nodes to determine the node, w, not in N′ that has the 
+minimum cost. In the second iteration, we need to check n- 1 nodes to determine 
+the minimum cost; in the third iteration n- 2 nodes, and so on. Overall, the total 
+number of nodes we need to search through over all the iterations is n(n + 1)/2, and 
+thus we say that the preceding implementation of the LS algorithm has worst-case 
+complexity of order n squared: O(n2). (A more sophisticated implementation of this 
+algorithm, using a data structure known as a heap, can find the minimum in line 9 in 
+logarithmic rather than linear time, thus reducing the complexity.)
+ Before completing our discussion of the LS algorithm, let us consider a pathol
+ogy that can arise. Figure 5.5 shows a simple network topology where link costs are 
+equal to the load carried on the link, for example, reflecting the delay that would 
+be experienced. In this example, link costs are not symmetric; that is, c(u,v) equals 
+c(v,u) only if the load carried on both directions on the link (u,v) is the same. In this 
+example, node z originates a unit of traffic destined for w, node x also originates a 
+unit of traffic destined for w, and node y injects an amount of traffic equal to e, also 
+destined for w. The initial routing is shown in Figure 5.5(a) with the link costs cor
+responding to the amount of traffic carried.
+ When the LS algorithm is next run, node y determines (based on the link costs 
+shown in Figure 5.5(a)) that the clockwise path to w has a cost of 1, while the coun
+terclockwise path to w (which it had been using) has a cost of 1 + e. Hence y’s least
+cost path to w is now clockwise. Similarly, x determines that its new least-cost path to 
+w is also clockwise, resulting in costs shown in Figure 5.5(b). When the LS algorithm 
+is run next, nodes x, y, and z all detect a zero-cost path to w in the counterclockwise 
+direction, and all route their traffic to the counterclockwise routes. The next time the 
+LS algorithm is run, x, y, and z all then route their traffic to the clockwise routes.
+ What can be done to prevent such oscillations (which can occur in any algo
+rithm, not just an LS algorithm, that uses a congestion or delay-based link metric)? 
+One solution would be to mandate that link costs not depend on the amount of traffic
+ carried—an unacceptable solution since one goal of routing is to avoid highly con
+gested (for example, high-delay) links. Another solution is to ensure that not all rout
+ers run the LS algorithm at the same time. This seems a more reasonable solution, 
+since we would hope that even if routers ran the LS algorithm with the same perio
+dicity, the execution instance of the algorithm would not be the same at each node. 
+Interestingly, researchers have found that routers in the Internet can self-synchronize 
+among themselves [Floyd Synchronization 1994]. That is, even though they initially 
+execute the algorithm with the same period but at different instants of time, the algo
+rithm execution instance can eventually become, and remain, synchronized at the 
+routers. One way to avoid such self-synchronization is for each router to randomize 
+the time it sends out a link advertisement.
+ Having studied the LS algorithm, let’s consider the other major routing algo
+rithm that is used in practice today—the distance-vector routing algorithm.

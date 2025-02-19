@@ -1,0 +1,394 @@
+2.2 The Web and HTTP
+ Until the early 1990s the Internet was used primarily by researchers, academics, 
+and university students to log in to remote hosts, to transfer files from local hosts 
+to remote hosts and vice versa, to receive and send news, and to receive and send 
+electronic mail. Although these applications were (and continue to be) extremely 
+useful, the Internet was essentially unknown outside of the academic and research 
+communities. Then, in the early 1990s, a major new application arrived on the 
+scene¡ªthe World Wide Web [Berners-Lee 1994]. The Web was the first Internet 
+application that caught the general public¡¯s eye. It dramatically changed, and con
+tinues to change, how people interact inside and outside their work environments. 
+It elevated the Internet from just one of many data networks to essentially the one 
+and only data network.
+ Perhaps what appeals the most to users is that the Web operates on demand. 
+Users receive what they want, when they want it. This is unlike traditional broadcast 
+radio and television, which force users to tune in when the content provider makes 
+the content available. In addition to being available on demand, the Web has many 
+other wonderful features that people love and cherish. It is enormously easy for any 
+individual to make information available over the Web¡ªeveryone can become a 
+publisher at extremely low cost. Hyperlinks and search engines help us navigate 
+through an ocean of information. Photos and videos stimulate our senses. Forms, 
+JavaScript, Java applets, and many other devices enable us to interact with pages and 
+sites. And the Web and its protocols serve as a platform for YouTube, Web-based 
+e-mail (such as Gmail), and most mobile Internet applications, including Instagram 
+and Google Maps.
+ 2.2.1 Overview of HTTP
+ The HyperText Transfer Protocol (HTTP), the Web¡¯s application-layer protocol, 
+is at the heart of the Web. It is defined in [RFC 1945] and [RFC 2616]. HTTP is 
+implemented in two programs: a client program and a server program. The client 
+program and server program, executing on different end systems, talk to each other 
+by exchanging HTTP messages. HTTP defines the structure of these messages and 
+how the client and server exchange the messages. Before explaining HTTP in detail, 
+we should review some Web terminology.
+ A Web page (also called a document) consists of objects. An object is 
+simply a file¡ªsuch as an HTML file, a JPEG image, a Java applet, or a video  
+clip¡ªthat is addressable by a single URL. Most Web pages consist of a base 
+HTML file and several referenced objects. For example, if a Web page con
+tains HTML text and five JPEG images, then the Web page has six objects: the 
+base HTML file plus the five images. The base HTML file references the other 
+objects in the page with the objects¡¯ URLs. Each URL has two components: the
+ hostname of the server that houses the object and the object¡¯s path name. For 
+example, the URL
+ http://www.someSchool.edu/someDepartment/picture.gif
+ HTTP response
+ HTTP request
+ has www.someSchool.edu for a hostname and /someDepartment/picture.
+ gif for a path name. Because Web browsers (such as Internet Explorer and Firefox) 
+implement the client side of HTTP, in the context of the Web, we will use the words 
+browser and client interchangeably. Web servers, which implement the server side 
+of HTTP, house Web objects, each addressable by a URL. Popular Web servers 
+include Apache and Microsoft Internet Information Server.
+ HTTP defines how Web clients request Web pages from Web servers and how 
+servers transfer Web pages to clients. We discuss the interaction between client 
+and server in detail later, but the general idea is illustrated in Figure 2.6. When a  
+user requests a Web page (for example, clicks on a hyperlink), the browser sends 
+HTTP request messages for the objects in the page to the server. The server receives 
+the requests and responds with HTTP response messages that contain the objects.
+ HTTP uses TCP as its underlying transport protocol (rather than running on top 
+of UDP). The HTTP client first initiates a TCP connection with the server. Once the 
+connection is established, the browser and the server processes access TCP through 
+their socket interfaces. As described in Section 2.1, on the client side the socket inter
+face is the door between the client process and the TCP connection; on the server side 
+it is the door between the server process and the TCP connection. The client sends 
+HTTP request messages into its socket interface and receives HTTP response mes
+sages from its socket interface. Similarly, the HTTP server receives request messages
+ from its socket interface and sends response messages into its socket interface. Once 
+the client sends a message into its socket interface, the message is out of the client¡¯s 
+hands and is ¡°in the hands¡± of TCP. Recall from Section 2.1 that TCP provides a 
+reliable data transfer service to HTTP. This implies that each HTTP request message 
+sent by a client process eventually arrives intact at the server; similarly, each HTTP 
+response message sent by the server process eventually arrives intact at the client. 
+Here we see one of the great advantages of a layered architecture¡ªHTTP need not 
+worry about lost data or the details of how TCP recovers from loss or reordering of 
+data within the network. That is the job of TCP and the protocols in the lower layers 
+of the protocol stack.
+ It is important to note that the server sends requested files to clients without 
+storing any state information about the client. If a particular client asks for the same 
+object twice in a period of a few seconds, the server does not respond by saying that 
+it just served the object to the client; instead, the server resends the object, as it has 
+completely forgotten what it did earlier. Because an HTTP server maintains no infor
+mation about the clients, HTTP is said to be a stateless protocol. We also remark 
+that the Web uses the client-server application architecture, as described in Section 
+2.1. A Web server is always on, with a fixed IP address, and it services requests from 
+potentially millions of different browsers.
+ 2.2.2 Non-Persistent and Persistent Connections
+ In many Internet applications, the client and server communicate for an extended 
+period of time, with the client making a series of requests and the server respond
+ing to each of the requests. Depending on the application and on how the applica
+tion is being used, the series of requests may be made back-to-back, periodically 
+at regular intervals, or intermittently. When this client-server interaction is 
+taking place over TCP, the application developer needs to make an important  
+decision¡ªshould each request/response pair be sent over a separate TCP connec
+tion, or should all of the requests and their corresponding responses be sent over 
+the same TCP connection? In the former approach, the application is said to use  
+non-persistent connections; and in the latter approach, persistent connections. 
+To gain a deep understanding of this design issue, let¡¯s examine the advantages 
+and disadvantages of persistent connections in the context of a specific applica
+tion, namely, HTTP, which can use both non-persistent connections and per
+sistent connections. Although HTTP uses persistent connections in its default 
+mode, HTTP clients and servers can be configured to use non-persistent connec
+tions instead.
+ HTTP with Non-Persistent Connections
+ Let¡¯s walk through the steps of transferring a Web page from server to client for the 
+case of non-persistent connections. Let¡¯s suppose the page consists of a base HTML
+ file and 10 JPEG images, and that all 11 of these objects reside on the same server. 
+Further suppose the URL for the base HTML file is
+ http://www.someSchool.edu/someDepartment/home.index
+ Here is what happens:
+ 1. The HTTP client process initiates a TCP connection to the server www 
+.someSchool.edu on port number 80, which is the default port number for 
+HTTP. Associated with the TCP connection, there will be a socket at the client 
+and a socket at the server.
+ 2. The HTTP client sends an HTTP request message to the server via its socket. 
+The request message includes the path name /someDepartment/home 
+.index. (We will discuss HTTP messages in some detail below.)
+ 3. The HTTP server process receives the request message via its socket, retrieves 
+the object /someDepartment/home.index from its storage (RAM or 
+disk), encapsulates the object in an HTTP response message, and sends the 
+response message to the client via its socket.
+ 4. The HTTP server process tells TCP to close the TCP connection. (But TCP 
+doesn¡¯t actually terminate the connection until it knows for sure that the client 
+has received the response message intact.)
+ 5. The HTTP client receives the response message. The TCP connection termi
+nates. The message indicates that the encapsulated object is an HTML file. The 
+client extracts the file from the response message, examines the HTML file, and 
+finds references to the 10 JPEG objects.
+ 6. The first four steps are then repeated for each of the referenced JPEG objects.
+ As the browser receives the Web page, it displays the page to the user. Two dif
+ferent browsers may interpret (that is, display to the user) a Web page in somewhat 
+different ways. HTTP has nothing to do with how a Web page is interpreted by a cli
+ent. The HTTP specifications ([RFC 1945] and [RFC 2616]) define only the commu
+nication protocol between the client HTTP program and the server HTTP program.
+ The steps above illustrate the use of non-persistent connections, where each TCP 
+connection is closed after the server sends the object¡ªthe connection does not per
+sist for other objects. Note that each TCP connection transports exactly one request 
+message and one response message. Thus, in this example, when a user requests the 
+Web page, 11 TCP connections are generated.
+ In the steps described above, we were intentionally vague about whether the  
+client obtains the 10 JPEGs over 10 serial TCP connections, or whether some of the 
+JPEGs are obtained over parallel TCP connections. Indeed, users can configure modern 
+browsers to control the degree of parallelism. In their default modes, most browsers open 
+5 to 10 parallel TCP connections, and each of these connections handles one request
+response transaction. If the user prefers, the maximum number of parallel connections 
+ can be set to one, in which case the 10 connections are established serially. As we¡¯ll see 
+in the next chapter, the use of parallel connections shortens the response time.
+ Before continuing, let¡¯s do a back-of-the-envelope calculation to estimate the 
+amount of time that elapses from when a client requests the base HTML file until 
+the entire file is received by the client. To this end, we define the round-trip time 
+(RTT), which is the time it takes for a small packet to travel from client to server 
+and then back to the client. The RTT includes packet-propagation delays, packet
+queuing delays in intermediate routers and switches, and packet-processing delays. 
+(These delays were discussed in Section 1.4.) Now consider what happens when 
+a user clicks on a hyperlink. As shown in Figure 2.7, this causes the browser to 
+initiate a TCP connection between the browser and the Web server; this involves 
+a ¡°three-way handshake¡±¡ªthe client sends a small TCP segment to the server, the 
+server acknowledges and responds with a small TCP segment, and, finally, the cli
+ent acknowledges back to the server. The first two parts of the three-way handshake 
+take one RTT. After completing the first two parts of the handshake, the client sends 
+the HTTP request message combined with the third part of the three-way handshake 
+(the acknowledgment) into the TCP connection. Once the request message arrives at
+the server, the server sends the HTML file into the TCP connection. This HTTP 
+request/response eats up another RTT. Thus, roughly, the total response time is two 
+RTTs plus the transmission time at the server of the HTML file.
+ HTTP with Persistent Connections
+ Non-persistent connections have some shortcomings. First, a brand-new connection 
+must be established and maintained for each requested object. For each of these 
+connections, TCP buffers must be allocated and TCP variables must be kept in both 
+the client and server. This can place a significant burden on the Web server, which 
+may be serving requests from hundreds of different clients simultaneously. Second, 
+as we just described, each object suffers a delivery delay of two RTTs¡ªone RTT to 
+establish the TCP connection and one RTT to request and receive an object.
+ With HTTP 1.1 persistent connections, the server leaves the TCP connection 
+open after sending a response. Subsequent requests and responses between the same 
+client and server can be sent over the same connection. In particular, an entire Web 
+page (in the example above, the base HTML file and the 10 images) can be sent over 
+a single persistent TCP connection. Moreover, multiple Web pages residing on the 
+same server can be sent from the server to the same client over a single persistent 
+TCP connection. These requests for objects can be made back-to-back, without wait
+ing for replies to pending requests (pipelining). Typically, the HTTP server closes 
+a connection when it isn¡¯t used for a certain time (a configurable timeout interval). 
+When the server receives the back-to-back requests, it sends the objects back-to
+back. The default mode of HTTP uses persistent connections with pipelining. Most 
+recently, HTTP/2 [RFC 7540] builds on HTTP 1.1 by allowing multiple requests 
+and replies to be interleaved in the same connection, and a mechanism for prioritiz
+ing HTTP message requests and replies within this connection. We¡¯ll quantitatively 
+compare the performance of non-persistent and persistent connections in the home
+work problems of Chapters 2 and 3. You are also encouraged to see [Heidemann 
+1997; Nielsen 1997; RFC 7540].
+ 2.2.3 HTTP Message Format
+ The HTTP specifications [RFC 1945; RFC 2616; RFC 7540] include the definitions 
+of the HTTP message formats. There are two types of HTTP messages, request mes
+sages and response messages, both of which are discussed below.
+ HTTP Request Message
+ Below we provide a typical HTTP request message
+  GET /somedir/page.html HTTP/1.1
+ Host: www.someschool.edu
+ Connection: close
+ User-agent: Mozilla/5.0
+ Accept-language: fr
+ We can learn a lot by taking a close look at this simple request message. First of 
+all, we see that the message is written in ordinary ASCII text, so that your ordinary 
+computer-literate human being can read it. Second, we see that the message consists 
+of five lines, each followed by a carriage return and a line feed. The last line is fol
+lowed by an additional carriage return and line feed. Although this particular request 
+message has five lines, a request message can have many more lines or as few as 
+one line. The first line of an HTTP request message is called the request line; the 
+subsequent lines are called the header lines. The request line has three fields: the 
+method field, the URL field, and the HTTP version field. The method field can take 
+on several different values, including GET, POST, HEAD, PUT, and DELETE. 
+The great majority of HTTP request messages use the GET method. The GET method 
+is used when the browser requests an object, with the requested object identified in 
+the URL field. In this example, the browser is requesting the object /somedir/
+ page.html. The version is self-explanatory; in this example, the browser imple
+ments version HTTP/1.1.
+ Now let¡¯s look at the header lines in the example. The header line Host: www 
+.someschool.edu specifies the host on which the object resides. You might 
+think that this header line is unnecessary, as there is already a TCP connection in 
+place to the host. But, as we¡¯ll see in Section 2.2.5, the information provided by the 
+host header line is required by Web proxy caches. By including the Connection: 
+close header line, the browser is telling the server that it doesn¡¯t want to bother 
+with persistent connections; it wants the server to close the connection after sending 
+the requested object. The User-agent: header line specifies the user agent, that 
+is, the browser type that is making the request to the server. Here the user agent is 
+Mozilla/5.0, a Firefox browser. This header line is useful because the server can actu
+ally send different versions of the same object to different types of user agents. (Each 
+of the versions is addressed by the same URL.) Finally, the Accept-language: 
+header indicates that the user prefers to receive a French version of the object, if such 
+an object exists on the server; otherwise, the server should send its default version. 
+The Accept-language: header is just one of many content negotiation headers 
+available in HTTP.
+ Having looked at an example, let¡¯s now look at the general format of a request 
+message, as shown in Figure 2.8. We see that the general format closely follows our 
+earlier example. You may have noticed, however, that after the header lines (and the 
+additional carriage return and line feed) there is an ¡°entity body.¡± The entity body 
+is empty with the GET method, but is used with the POST method. An HTTP client 
+often uses the POST method when the user fills out a form¡ªfor example, when a 
+user provides search words to a search engine. With a POST message, the user is still 
+requesting a Web page from the server, but the specific contents of the Web page
+ depend on what the user entered into the form fields. If the value of the method field 
+is POST, then the entity body contains what the user entered into the form fields.
+ We would be remiss if we didn¡¯t mention that a request generated with a form 
+does not necessarily use the POST method. Instead, HTML forms often use the GET 
+method and include the inputted data (in the form fields) in the requested URL. For 
+example, if a form uses the GET method, has two fields, and the inputs to the two 
+fields are monkeys and bananas, then the URL will have the structure www.
+ somesite.com/animalsearch?monkeys&bananas. In your day-to-day 
+Web surfing, you have probably noticed extended URLs of this sort.
+ The HEAD method is similar to the GET method. When a server receives a 
+request with the HEAD method, it responds with an HTTP message but it leaves out 
+the requested object. Application developers often use the HEAD method for debug
+ging. The PUT method is often used in conjunction with Web publishing tools. It 
+allows a user to upload an object to a specific path (directory) on a specific Web 
+server. The PUT method is also used by applications that need to upload objects 
+to Web servers. The DELETE method allows a user, or an application, to delete an 
+object on a Web server.
+ HTTP Response Message
+ Below we provide a typical HTTP response message. This response message could 
+be the response to the example request message just discussed.
+ HTTP/1.1 200 OK
+ Connection: close
+ Date: Tue, 18 Aug 2015 15:44:04 GMT
+  Server: Apache/2.2.3 (CentOS)
+ Last-Modified: Tue, 18 Aug 2015 15:11:03 GMT
+ Content-Length: 6821
+ Content-Type: text/html 
+(data data data data data ...)
+ Let¡¯s take a careful look at this response message. It has three sections: an initial 
+status line, six header lines, and then the entity body. The entity body is the meat 
+of the message¡ªit contains the requested object itself (represented by data data 
+data data data ...). The status line has three fields: the protocol version 
+field, a status code, and a corresponding status message. In this example, the status 
+line indicates that the server is using HTTP/1.1 and that everything is OK (that is, the 
+server has found, and is sending, the requested object).
+ Now let¡¯s look at the header lines. The server uses the Connection: close 
+header line to tell the client that it is going to close the TCP connection after sending 
+the message. The Date: header line indicates the time and date when the HTTP 
+response was created and sent by the server. Note that this is not the time when 
+the object was created or last modified; it is the time when the server retrieves the 
+object from its file system, inserts the object into the response message, and sends the 
+response message. The Server: header line indicates that the message was gener
+ated by an Apache Web server; it is analogous to the User-agent: header line in 
+the HTTP request message. The Last-Modified: header line indicates the time 
+and date when the object was created or last modified. The Last-Modified: 
+header, which we will soon cover in more detail, is critical for object caching, both 
+in the local client and in network cache servers (also known as proxy servers). The 
+Content-Length: header line indicates the number of bytes in the object being 
+sent. The Content-Type: header line indicates that the object in the entity body 
+is HTML text. (The object type is officially indicated by the Content-Type: 
+header and not by the file extension.)
+ Having looked at an example, let¡¯s now examine the general format of a response 
+message, which is shown in Figure 2.9. This general format of the response message 
+matches the previous example of a response message. Let¡¯s say a few additional 
+words about status codes and their phrases. The status code and associated phrase 
+indicate the result of the request. Some common status codes and associated phrases 
+include:
+ ? 200 OK: Request succeeded and the information is returned in the response.
+ ? 301 Moved Permanently: Requested object has been permanently moved; 
+the new URL is specified in Location: header of the response message. The 
+client software will automatically retrieve the new URL.
+ ? 400 Bad Request: This is a generic error code indicating that the request 
+could not be understood by the server
+? 404 Not Found: The requested document does not exist on this server.
+ ? 505 HTTP Version Not Supported: The requested HTTP protocol ver
+sion is not supported by the server.
+ How would you like to see a real HTTP response message? This is highly rec
+ommended and very easy to do! First Telnet into your favorite Web server. Then 
+type in a one-line request message for some object that is housed on the server. For 
+example, if you have access to a command prompt, type:
+ telnet gaia.cs.umass.edu 80 
+GET /kurose_ross/interactive/index.php HTTP/1.1
+ Host: gaia.cs.umass.edu
+ (Press the carriage return twice after typing the last line.) This opens a TCP con
+nection to port 80 of the host gaia.cs.umass.edu and then sends the HTTP 
+request message. You should see a response message that includes the base HTML 
+file for the interactive homework problems for this textbook. If you¡¯d rather just see 
+the HTTP message lines and not receive the object itself, replace GET with HEAD.
+ In this section we discussed a number of header lines that can be used within 
+HTTP request and response messages. The HTTP specification defines many, 
+many more header lines that can be inserted by browsers, Web servers, and net
+work cache servers. We have covered only a small number of the totality of header 
+lines. We¡¯ll cover a few more below and another small number when we discuss 
+network Web caching in Section 2.2.5. A highly readable and comprehensive
+ discussion of the HTTP protocol, including its headers and status codes, is given 
+in [Krishnamurthy 2001].
+ How does a browser decide which header lines to include in a request mes
+sage? How does a Web server decide which header lines to include in a response 
+message? A browser will generate header lines as a function of the browser type 
+and version (for example, an HTTP/1.0 browser will not generate any 1.1 header 
+lines), the user configuration of the browser (for example, preferred language), and 
+whether the browser currently has a cached, but possibly out-of-date, version of the 
+object. Web servers behave similarly: There are different products, versions, and 
+configurations, all of which influence which header lines are included in response 
+messages.
+ 2.2.4 User-Server Interaction: Cookies
+ We mentioned above that an HTTP server is stateless. This simplifies server design 
+and has permitted engineers to develop high-performance Web servers that can han
+dle thousands of simultaneous TCP connections. However, it is often desirable for 
+a Web site to identify users, either because the server wishes to restrict user access 
+or because it wants to serve content as a function of the user identity. For these pur
+poses, HTTP uses cookies. Cookies, defined in [RFC 6265], allow sites to keep track 
+of users. Most major commercial Web sites use cookies today.
+ As shown in Figure 2.10, cookie technology has four components: (1) a cookie 
+header line in the HTTP response message; (2) a cookie header line in the HTTP 
+request message; (3) a cookie file kept on the user¡¯s end system and managed by 
+the user¡¯s browser; and (4) a back-end database at the Web site. Using Figure 2.10, 
+let¡¯s walk through an example of how cookies work. Suppose Susan, who always 
+accesses the Web using Internet Explorer from her home PC, contacts Amazon.com 
+for the first time. Let us suppose that in the past she has already visited the eBay site. 
+When the request comes into the Amazon Web server, the server creates a unique 
+identification number and creates an entry in its back-end database that is indexed 
+by the identification number. The Amazon Web server then responds to Susan¡¯s 
+browser, including in the HTTP response a Set-cookie: header, which contains 
+the identification number. For example, the header line might be:
+ Set-cookie: 1678
+ When Susan¡¯s browser receives the HTTP response message, it sees the  
+Set-cookie: header. The browser then appends a line to the special cookie file 
+that it manages. This line includes the hostname of the server and the identification 
+number in the Set-cookie: header. Note that the cookie file already has an entry 
+for eBay, since Susan has visited that site in the past. As Susan continues to browse 
+the Amazon site, each time she requests a Web page, her browser consults her cookie 
+file, extracts her identification number for this site, and puts a cookie header line that 
+ includes the identification number in the HTTP request. Specifically, each of her 
+HTTP requests to the Amazon server includes the header line:
+ Cookie: 1678
+ In this manner, the Amazon server is able to track Susan¡¯s activity at the Amazon 
+site. Although the Amazon Web site does not necessarily know Susan¡¯s name, it 
+knows exactly which pages user 1678 visited, in which order, and at what times!
+ Amazon uses cookies to provide its shopping cart service¡ªAmazon can maintain a 
+list of all of Susan¡¯s intended purchases, so that she can pay for them collectively at 
+the end of the session.
+ If Susan returns to Amazon¡¯s site, say, one week later, her browser will con
+tinue to put the header line Cookie: 1678 in the request messages. Amazon also 
+recommends products to Susan based on Web pages she has visited at Amazon in 
+the past. If Susan also registers herself with Amazon¡ªproviding full name, e-mail 
+address, postal address, and credit card information¡ªAmazon can then include this 
+information in its database, thereby associating Susan¡¯s name with her identifica
+tion number (and all of the pages she has visited at the site in the past!). This is how  
+Amazon and other e-commerce sites provide ¡°one-click shopping¡±¡ªwhen Susan 
+chooses to purchase an item during a subsequent visit, she doesn¡¯t need to re-enter 
+her name, credit card number, or address.
+ From this discussion we see that cookies can be used to identify a user. The first 
+time a user visits a site, the user can provide a user identification (possibly his or her 
+name). During the subsequent sessions, the browser passes a cookie header to the 
+server, thereby identifying the user to the server. Cookies can thus be used to create 
+a user session layer on top of stateless HTTP. For example, when a user logs in to 
+a Web-based e-mail application (such as Hotmail), the browser sends cookie infor
+mation to the server, permitting the server to identify the user throughout the user¡¯s 
+session with the application.
+ Although cookies often simplify the Internet shopping experience for the user, 
+they are controversial because they can also be considered as an invasion of privacy. 
+As we just saw, using a combination of cookies and user-supplied account informa
+tion, a Web site can learn a lot about a user and potentially sell this information to a 
+third party. Cookie Central [Cookie Central 2016] includes extensive information on 
+the cookie controversy.
+ 

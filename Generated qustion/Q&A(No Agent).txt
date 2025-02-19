@@ -1,0 +1,224 @@
+=== Chapter 1 - Subchapter 1 ===
+Question 1: What is the primary vehicle used in this book for discussing computer networks and their protocols?
+Answer 1: The public Internet.
+Question 2: What is estimated to be the number of devices connected to the Internet by 2020?
+Answer 2: 25 billion.
+Question 3: What is the analogy used to describe packet-switched networks, where packets are analogous to what, communication links are analogous to what, and packet switches are analogous to what?
+Answer 3: Trucks, highways and roads, and intersections, respectively.
+Question 4: What is the primary function of Internet Service Providers (ISPs), including residential ISPs, corporate ISPs, and cellular data ISPs?
+Answer 4: To provide access to the Internet for end systems.
+Question 5: What is the name of the body responsible for developing Internet standards, including protocols such as TCP, IP, HTTP, and SMTP?
+Answer 5: The Internet Engineering Task Force (IETF).
+
+=== Chapter 1 - Subchapter 2 ===
+Question 1: What is referred to as the edge of a network in computer networking jargon?
+Answer 1: End systems.
+Question 2: What are the two most prevalent types of broadband residential access?
+Answer 2: Digital subscriber line (DSL) and cable.
+Question 3: What is the primary function of a DSL modem in a residential setting?
+Answer 3: The DSL modem takes digital data and translates it to high-frequency tones for transmission over telephone wires to the CO.
+Question 4: What is the name of the device that separates the data and phone signals arriving to the home and forwards the data signal to the DSL modem?
+Answer 4: A splitter.
+Question 5: What is the technique used to make the single DSL link appear as if there were three separate links, allowing a telephone call and an Internet connection to share the DSL link at the same time?
+Answer 5: Frequency-division multiplexing.
+
+=== Chapter 2 - Subchapter 1 ===
+Question 1: What is the primary purpose of the World Wide Web?
+Answer 1: The primary purpose of the World Wide Web is to allow users to interact with information on demand, making it available at any time and from any location.
+Question 2: What is the main advantage of using the World Wide Web over traditional broadcast radio and television?
+Answer 2: The main advantage of using the World Wide Web is that it operates on demand, allowing users to receive what they want, when they want it, unlike traditional broadcast media which force users to tune in at a specific time.
+Question 3: What is the name of the application-layer protocol that is at the heart of the World Wide Web?
+Answer 3: The HyperText Transfer Protocol (HTTP) is the application-layer protocol that is at the heart of the World Wide Web.
+Question 4: What is the primary difference between non-persistent and persistent connections in HTTP?
+Answer 4: The primary difference between non-persistent and persistent connections in HTTP is that non-persistent connections close after each request, while persistent connections remain open and can be used for multiple requests.
+Question 5: What is the purpose of cookies in HTTP?
+Answer 5: The purpose of cookies in HTTP is to allow Web sites to identify users, either to restrict access or to serve content based on user identity, by storing a unique identification number on the user's browser and associating it with a back-end database.
+
+=== Chapter 2 - Subchapter 2 ===
+Question 1: What was the primary use of the Internet before the advent of the World Wide Web?
+Answer 1: The Internet was primarily used by researchers, academics, and university students to log in to remote hosts, transfer files, receive and send news, and receive and send electronic mail.
+Question 2: What is the main advantage of the World Wide Web over traditional broadcast radio and television?
+Answer 2: The Web operates on demand, allowing users to receive what they want, when they want it.
+Question 3: What is the primary function of the HyperText Transfer Protocol (HTTP) in the context of the Web?
+Answer 3: HTTP defines how Web clients request Web pages from Web servers and how servers transfer Web pages to clients.
+Question 4: What is the purpose of cookies in the context of HTTP and the Web?
+Answer 4: Cookies allow Web sites to identify users, either by restricting user access or by serving content as a function of the user identity.
+Question 5: What is the primary difference between non-persistent and persistent connections in HTTP?
+Answer 5: Non-persistent connections close after each request-response pair, while persistent connections remain open for subsequent requests and responses between the same client and server.
+
+=== Chapter 3 - Subchapter 1 ===
+Question 1: What is the primary function of the transport layer in a computer network?
+Answer 1: The primary function of the transport layer is to provide logical communication between application processes running on different hosts.
+Question 2: What is the purpose of the source port number in a UDP segment?
+Answer 2: The source port number serves as part of a "return address" when a segment is sent back to the source host.
+Question 3: How does a host demultiplex incoming TCP segments?
+Answer 3: A host demultiplexes incoming TCP segments by using all four values: source IP address, source port number, destination IP address, and destination port number.
+Question 4: What is the main difference between a TCP socket and a UDP socket in terms of identification?
+Answer 4: A TCP socket is identified by a four-tuple: source IP address, source port number, destination IP address, and destination port number, whereas a UDP socket is identified by a two-tuple: destination IP address and destination port number.
+Question 5: What is the purpose of transport-layer multiplexing and demultiplexing?
+Answer 5: The purpose of transport-layer multiplexing and demultiplexing is to extend the host-to-host delivery service provided by the network layer to a process-to-process delivery service for applications running on the hosts.
+
+=== Chapter 3 - Subchapter 2 ===
+Question 1: What is the purpose of transport-layer multiplexing and demultiplexing?
+Answer 1: The purpose of transport-layer multiplexing and demultiplexing is to extend the host-to-host delivery service provided by the network layer to a process-to-process delivery service for applications running on the hosts.
+Question 2: What is the role of sockets in transport-layer multiplexing and demultiplexing?
+Answer 2: Sockets have a unique identifier, and each segment has special fields that indicate the socket to which the segment is to be delivered.
+Question 3: What is the difference between a UDP socket and a TCP socket in terms of identification?
+Answer 3: A UDP socket is identified by a two-tuple consisting of a destination IP address and a destination port number, while a TCP socket is identified by a four-tuple: (source IP address, source port number, destination IP address, destination port number).
+Question 4: How does a TCP server distinguish between segments from different clients?
+Answer 4: A TCP server distinguishes between segments from different clients using source IP addresses and source port numbers.
+Question 5: What is the purpose of the source port number in a TCP segment?
+Answer 5: The source port number serves as part of a return address, allowing the destination host to send a segment back to the source host using the source port number as the destination port number in the return segment.
+
+=== Chapter 4 - Subchapter 1 ===
+Question 1: What is the primary role of the network layer in a network?
+Answer 1: The primary role of the network layer is to move packets from a sending host to a receiving host.
+Question 2: What are the two important network-layer functions that can be identified for packet forwarding?
+Answer 2: Forwarding and routing. Forwarding refers to the router-local action of transferring a packet from an input link interface to the appropriate output link interface, while routing refers to the network-wide process that determines the end-to-end paths that packets take from source to destination.
+Question 3: What is the purpose of a forwarding table in a router?
+Answer 3: A router forwards a packet by examining the value of one or more fields in the arriving packet's header, and then using these header values to index into its forwarding table, which indicates the outgoing link interface at that router to which that packet is to be forwarded.
+Question 4: What is the Internet's network layer service model known as?
+Answer 4: Best-effort service.
+Question 5: What is the main difference between forwarding and routing in a network?
+Answer 5: Forwarding refers to the router-local action of transferring a packet from an input link interface to the appropriate output link interface, typically implemented in hardware and taking place at very short timescales, while routing refers to the network-wide process that determines the end-to-end paths that packets take from source to destination, typically implemented in software and taking place on much longer timescales.
+
+
+=== Chapter 4 - Subchapter 2 ===
+Question 1: What are the four router components that can be identified in a generic router architecture?
+Answer 1: The four router components are input ports, switching fabric, output ports, and routing processor.
+Question 2: What is the primary function of the input port in a router?
+Answer 2: The primary function of the input port is to perform several key functions, including terminating an incoming physical link, performing link-layer functions, and performing a lookup function to determine the router output port to which an arriving packet will be forwarded via the switching fabric.
+Question 3: What is the purpose of the forwarding table in a router?
+Answer 3: The forwarding table is used by the router to look up the output port to which an arriving packet will be forwarded via the switching fabric.
+Question 4: What is the difference between switching via memory and switching via a bus in a router?
+Answer 4: Switching via memory involves the routing processor copying the packet from the input port into processor memory, while switching via a bus involves an input port transferring a packet directly to the output port over a shared bus.
+Question 5: What is the purpose of packet scheduling in a router?
+Answer 5: The purpose of packet scheduling in a router is to determine the order in which queued packets are transmitted over an outgoing link.
+
+
+=== Chapter 5 - Subchapter 1 ===
+Question 1: What is the purpose of the network control plane in the context of the network layer?
+Answer 1: The network control plane determines the local data-plane forwarding behavior of a router by specifying the forwarding table.
+Question 2: What is the key distinction between per-router control and logically centralized control in the network control plane?
+Answer 2: The key distinction is that in per-router control, each router has a routing component that communicates with other routers to compute its forwarding table, whereas in logically centralized control, a centralized controller computes and distributes the forwarding tables to all routers.
+Question 3: What is the main goal of a routing algorithm in determining good paths between senders and receivers through the network of routers?
+Answer 3: The main goal of a routing algorithm is to identify the least costly paths between sources and destinations.
+Question 4: What is the computational complexity of Dijkstra's algorithm, which is used in the link-state routing algorithm?
+Answer 4: The computational complexity of Dijkstra's algorithm is O(n^2), where n is the number of nodes in the network.
+Question 5: What can be done to prevent oscillations in link-state algorithms that use a congestion or delay-based link metric?
+Answer 5: One solution is to ensure that not all routers run the LS algorithm at the same time, or to randomize the time each router sends out a link advertisement to avoid self-synchronization among routers.
+
+
+=== Chapter 5 - Subchapter 2 ===
+Question 1: What is the main difference between the LS algorithm and the DV algorithm?
+Answer 1: The LS algorithm uses global information, whereas the DV algorithm is iterative, asynchronous, and distributed.
+Question 2: What is the purpose of the Bellman-Ford equation in the context of the DV algorithm?
+Answer 2: The Bellman-Ford equation provides the entries in node x's forwarding table and suggests the form of the neighbor-to-neighbor communication that will take place in the DV algorithm.
+Question 3: How does a node update its distance-vector estimate in the DV algorithm?
+Answer 3: A node updates its distance-vector estimate when it either sees a cost change in one of its directly attached links or receives a distance-vector update from some neighbor.
+Question 4: What is the count-to-infinity problem in the context of the DV algorithm?
+Answer 4: The count-to-infinity problem occurs when a node receives incorrect information from its neighbors and continues to route packets through a node that has an incorrect path to the destination.
+Question 5: What is the purpose of poisoned reverse in the DV algorithm?
+Answer 5: Poisoned reverse is a technique used to avoid the count-to-infinity problem by having a node advertise an incorrect path to its neighbor, preventing it from routing packets through that node.
+
+
+=== Chapter 6 - Subchapter 1 ===
+Question 1: What is the basic terminology used to refer to any device that runs a link-layer protocol?
+Answer 1: A node.
+Question 2: What are the services that can be offered by a link-layer protocol?
+Answer 2: Framing, link access, reliable delivery, and error detection and correction.
+Question 3: Where is the link layer implemented in a host?
+Answer 3: In a network adapter, also known as a network interface card (NIC), which is typically implemented in a single, special-purpose chip.
+Question 4: What is the primary advantage of using forward error correction (FEC) techniques in a network setting?
+Answer 4: FEC techniques can decrease the number of sender retransmissions required and allow for immediate correction of errors at the receiver.
+Question 5: What is the key idea behind cyclic redundancy check (CRC) codes?
+Answer 5: The key idea behind CRC codes is to choose r additional bits, R, and append them to D such that the resulting d + r bit pattern (interpreted as a binary number) is exactly divisible by G (i.e., has no remainder) using modulo-2 arithmetic.
+
+
+=== Chapter 6 - Subchapter 2 ===
+Question 1: What is the primary problem that multiple access protocols aim to solve in a broadcast channel?
+Answer 1: The primary problem is to coordinate the access of multiple sending and receiving nodes to a shared broadcast channel.
+Question 2: What are the two main types of network links mentioned in the text?
+Answer 2: The two main types of network links are point-to-point links and broadcast links.
+Question 3: What is the name of the protocol that allows a node to transmit continuously at the full rate, R, when that node is the only active node?
+Answer 3: Slotted ALOHA.
+Question 4: What is the maximum efficiency of the slotted ALOHA protocol when a large number of nodes have many frames to transmit?
+Answer 4: 1/e = 0.37.
+Question 5: What is the name of the algorithm used in Ethernet and other CSMA/CD protocols to solve the problem of choosing a random backoff time after a collision?
+Answer 5: Binary Exponential Backoff.
+
+
+=== Chapter 7 - Subchapter 1 ===
+Question 1: What are the three key elements of a wireless network?
+Answer 1: The three key elements of a wireless network are wireless hosts, wireless links, and base stations.
+Question 2: What is the main difference between a wired link and a wireless link?
+Answer 2: The main difference between a wired link and a wireless link is that wireless links are prone to impairments such as decreasing signal strength, interference from other sources, and multipath propagation.
+Question 3: What is the purpose of the signal-to-noise ratio (SNR) in wireless communication?
+Answer 3: The signal-to-noise ratio (SNR) is a relative measure of the strength of the received signal and background noise, and a larger SNR makes it easier for the receiver to extract the transmitted signal from the background noise.
+Question 4: What is the concept of CDMA in wireless communication?
+Answer 4: CDMA is a channel partitioning protocol that encodes each bit being sent by multiplying it by a signal (the code) that changes at a much faster rate than the original sequence of data bits, allowing multiple senders to transmit data simultaneously without interfering with each other.
+Question 5: What is the advantage of using adaptive modulation and coding in wireless communication?
+Answer 5: The advantage of using adaptive modulation and coding is that it allows the selection of a modulation technique that provides the highest transmission rate possible subject to a constraint on the bit error rate, for given channel characteristics.
+
+
+=== Chapter 7 - Subchapter 2 ===
+Question 1: What is the primary purpose of the IEEE 802.11 wireless LAN standard?
+Answer 1: The primary purpose of the IEEE 802.11 wireless LAN standard is to provide a widely adopted and compatible technology for wireless local area networks (WLANs).
+Question 2: What are the two main frequency ranges used by 802.11 devices?
+Answer 2: The two main frequency ranges used by 802.11 devices are 2.4 GHz to 2.485 GHz (referred to as the 2.4 GHz range) and 5.1 GHz to 5.8 GHz (referred to as the 5 GHz range).
+Question 3: What is the purpose of the RTS (Request to Send) and CTS (Clear to Send) control frames in the 802.11 protocol?
+Answer 3: The RTS and CTS control frames are used to reserve access to the channel and prevent collisions, especially in the presence of hidden terminals.
+Question 4: What is the difference between the CSMA/CD (Carrier Sense Multiple Access with Collision Detection) protocol used in Ethernet and the CSMA/CA (Carrier Sense Multiple Access with Collision Avoidance) protocol used in 802.11?
+Answer 4: The main difference between CSMA/CD and CSMA/CA is that CSMA/CD uses collision detection, whereas CSMA/CA uses collision avoidance techniques, such as random backoff and link-layer acknowledgments.
+Question 5: What is the purpose of the Distributed Inter-frame Space (DIFS) in the 802.11 CSMA/CA protocol?
+Answer 5: The purpose of the DIFS is to provide a short period of time after a station senses the channel idle, during which it waits before transmitting its frame to ensure that other stations have completed their transmissions.
+
+
+=== Chapter 8 - Subchapter 1 ===
+Question 1: What is the main goal of network security?
+Answer 1: The main goal of network security is to ensure that only the sender and intended receiver can understand the contents of the transmitted message, and that the message is not altered, either maliciously or by accident, in transit.
+Question 2: What are the four desirable properties of secure communication?
+Answer 2: The four desirable properties of secure communication are: (1) Confidentiality, (2) Message integrity, (3) End-point authentication, and (4) Operational security.
+Question 3: What is the purpose of a key in a cryptographic system?
+Answer 3: The purpose of a key in a cryptographic system is to provide secret information that prevents an intruder from decrypting the transmitted data, even if the encryption technique itself is known.
+Question 4: What is the main difference between a symmetric key system and a public key system?
+Answer 4: The main difference between a symmetric key system and a public key system is that in a symmetric key system, Alice's and Bob's keys are identical and are secret, whereas in a public key system, a pair of keys is used, with one key being known to both Bob and Alice, and the other key being known only by either Bob or Alice.
+Question 5: What is the purpose of the Initialization Vector (IV) in the Cipher Block Chaining (CBC) technique?
+Answer 5: The purpose of the Initialization Vector (IV) in the CBC technique is to provide a random k-bit string that is used to encrypt the first block of the message, and then the subsequent blocks are encrypted using the previous block's ciphertext and the IV, thereby ensuring that identical plaintext blocks produce different ciphertext blocks.
+
+
+=== Chapter 8 - Subchapter 2 ===
+Question 1: What is the main difficulty with symmetric key encryption systems?
+Answer 1: The main difficulty with symmetric key encryption systems is that the two communicating parties must somehow agree on the shared key, but to do so requires (presumably secure) communication.
+Question 2: What is the purpose of the public key in public key cryptography?
+Answer 2: The purpose of the public key in public key cryptography is to allow anyone to send an encrypted message to the recipient, while the private key is kept secret and used for decryption.
+Question 3: How does the RSA algorithm work?
+Answer 3: The RSA algorithm works by using two large prime numbers, p and q, to generate the public and private keys. The public key is used for encryption and is a pair of numbers (n, e), while the private key is used for decryption and is a pair of numbers (n, d). The encryption and decryption algorithms use modular arithmetic to ensure that the original message is recovered.
+Question 4: What is the purpose of a session key in RSA?
+Answer 4: The purpose of a session key in RSA is to use a symmetric key cipher (e.g., with DES or AES) to encrypt a large amount of data, and the session key is encrypted using the recipient's public key.
+Question 5: Why does RSA rely on the difficulty of factoring large numbers?
+Answer 5: RSA relies on the difficulty of factoring large numbers because if one knew the prime factors p and q, they could easily compute the secret key, d, given the public value e. Therefore, the security of RSA is based on the assumption that there are no known algorithms for quickly factoring a number.
+
+=== Chapter 9 - Subchapter 1 ===
+Question 1: What is the primary characteristic of video that affects its transmission over the Internet?
+Answer 1: The high bit rate of video is its primary characteristic that affects its transmission over the Internet.
+Question 2: What is the trade-off between video quality and bit rate in video compression?
+Answer 2: The trade-off is that higher bit rates result in better image quality, but also require more bandwidth and storage.
+Question 3: What is the basic encoding technique used for digital audio?
+Answer 3: The basic encoding technique used for digital audio is pulse code modulation (PCM).
+Question 4: What are the three key distinguishing features of streaming stored video applications?
+Answer 4: The three key distinguishing features are streaming, interactivity, and continuous playout.
+Question 5: What is the primary performance measure for streaming video applications?
+Answer 5: The primary performance measure for streaming video applications is average throughput, which must be at least as large as the bit rate of the video itself.
+
+=== Chapter 9 - Subchapter 2 ===
+Question 1: What is a common characteristic of all three forms of video streaming?
+Answer 1: The extensive use of client-side application buffering to mitigate the effects of varying end-to-end delays and varying amounts of available bandwidth between server and client.
+Question 2: What is the main advantage of using HTTP streaming over UDP streaming?
+Answer 2: HTTP streaming allows the video to traverse firewalls and NATs more easily and obviates the need for a media control server, reducing the cost of a large-scale deployment over the Internet.
+Question 3: What is prefetching in the context of streaming stored video?
+Answer 3: Prefetching is the process of downloading video at a rate higher than the consumption rate, thereby building up a reserve of video in the client application buffer.
+Question 4: What happens to the client application buffer when the user pauses the video during streaming?
+Answer 4: The client application buffer does not remove bits, and if it becomes full, it will cause back pressure all the way back to the server, potentially forcing the server to stop transmitting.
+Question 5: What is the initial buffering delay in HTTP streaming, and how is it determined?
+Answer 5: The initial buffering delay is the time required to build up Q bits in the application buffer, and it is determined by tp = Q/x, where x is the server send rate.

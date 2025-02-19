@@ -1,0 +1,282 @@
+ 7.1 Introduction
+ Figure 7.1 shows the setting in which we’ll consider the topics of wireless data com
+munication and mobility. We’ll begin by keeping our discussion general enough to 
+cover a wide range of networks, including both wireless LANs such as IEEE 802.11 
+and cellular networks such as a 4G network; we’ll drill down into a more detailed 
+discussion of specific wireless architectures in later sections. We can identify the 
+following elements in a wireless network:
+ • Wireless hosts. As in the case of wired networks, hosts are the end-system devices 
+that run applications. A wireless host might be a laptop, tablet, smartphone, or 
+desktop computer. The hosts themselves may or may not be mobile.
+• Wireless links. A host connects to a base station (defined below) or to another 
+wireless host through a wireless communication link. Different wireless link 
+technologies have different transmission rates and can transmit over differ
+ent distances. Figure 7.2 shows two key characteristics (coverage area and 
+link rate) of the more popular wireless network standards. (The figure is only 
+meant to provide a rough idea of these characteristics. For example, some of 
+these types of networks are only now being deployed, and some link rates can 
+increase or decrease beyond the values shown depending on distance, channel 
+conditions, and the number of users in the wireless network.) We’ll cover these 
+standards later in the first half of this chapter; we’ll also consider other wireless 
+link characteristics (such as their bit error rates and the causes of bit errors) in 
+Section 7.2.
+ In Figure 7.1, wireless links connect wireless hosts located at the edge of the 
+network into the larger network infrastructure. We hasten to add that wireless 
+links are also sometimes used within a network to connect routers, switches, and
+ other network equipment. However, our focus in this chapter will be on the use of 
+wireless communication at the network edge, as it is here that many of the most 
+exciting technical challenges, and most of the growth, are occurring.
+ • Base station. The base station is a key part of the wireless network infrastructure. 
+Unlike the wireless host and wireless link, a base station has no obvious counter
+part in a wired network. A base station is responsible for sending and receiving 
+data (e.g., packets) to and from a wireless host that is associated with that base 
+station. A base station will often be responsible for coordinating the transmission 
+of multiple wireless hosts with which it is associated. When we say a wireless 
+host is “associated” with a base station, we mean that (1) the host is within the 
+wireless communication distance of the base station, and (2) the host uses that 
+base station to relay data between it (the host) and the larger network. Cell towers 
+in cellular networks and access points in 802.11 wireless LANs are examples of 
+base stations.
+ In Figure 7.1, the base station is connected to the larger network (e.g., the  Internet, 
+corporate or home network, or telephone network), thus functioning as a link
+layer relay between the wireless host and the rest of the world with which the host 
+communicates.
+ Hosts associated with a base station are often referred to as operating in 
+infrastructure mode, since all traditional network services (e.g., address assign
+ment and routing) are provided by the network to which a host is connected via 
+ the base station. In ad hoc networks, wireless hosts have no such infrastructure 
+with which to connect. In the absence of such infrastructure, the hosts themselves 
+must provide for services such as routing, address assignment, DNS-like name 
+translation, and more.
+ When a mobile host moves beyond the range of one base station and into the 
+range of another, it will change its point of attachment into the larger network
+ (i.e., change the base station with which it is associated)—a process referred to 
+as handoff. Such mobility raises many challenging questions. If a host can move, 
+how does one find the mobile host’s current location in the network so that data 
+can be forwarded to that mobile host? How is addressing performed, given that 
+a host can be in one of many possible locations? If the host moves during a 
+TCP connection or phone call, how is data routed so that the connection contin
+ues uninterrupted? These and many (many!) other questions make wireless and 
+mobile networking an area of exciting networking research.
+ • Network infrastructure. This is the larger network with which a wireless host may 
+wish to communicate.
+ Having discussed the “pieces” of a wireless network, we note that these pieces 
+can be combined in many different ways to form different types of wireless net
+works. You may find a taxonomy of these types of wireless networks useful as you 
+read on in this chapter, or read/learn more about wireless networks beyond this book. 
+At the highest level we can classify wireless networks according to two criteria: (i) 
+whether a packet in the wireless network crosses exactly one wireless hop or multiple 
+wireless hops, and (ii) whether there is infrastructure such as a base station in the 
+network:
+ • Single-hop, infrastructure-based. These networks have a base station that is con
+nected to a larger wired network (e.g., the Internet). Furthermore, all commu
+nication is between this base station and a wireless host over a single wireless 
+hop. The 802.11 networks you use in the classroom, café, or library; and the 4G 
+LTE data networks that we will learn about shortly all fall in this category. The 
+vast majority of our daily interactions are with single-hop, infrastructure-based 
+ wireless networks.
+ • Single-hop, infrastructure-less. In these networks, there is no base station that 
+is connected to a wireless network. However, as we will see, one of the nodes 
+in this single-hop network may coordinate the transmissions of the other nodes. 
+Bluetooth networks (that connect small wireless devices such as keyboards, 
+speakers, and headsets, and which we will study in Section 7.3.6) and 802.11 
+networks in ad hoc mode are single-hop, infrastructure-less networks.
+ • Multi-hop, infrastructure-based. In these networks, a base station is present that 
+is wired to the larger network. However, some wireless nodes may have to relay 
+their communication through other wireless nodes in order to communicate via 
+the base station. Some wireless sensor networks and so-called wireless mesh 
+networks fall in this category.
+ • Multi-hop, infrastructure-less. There is no base station in these networks, and 
+nodes may have to relay messages among several other nodes in order to reach 
+a destination. Nodes may also be mobile, with connectivity changing among 
+nodes—a class of networks known as mobile ad hoc networks (MANETs).
+ If the mobile nodes are vehicles, the network is a vehicular ad hoc network 
+(VANET). As you might imagine, the development of protocols for such net
+works is challenging and is the subject of much ongoing research.
+ In this chapter, we’ll mostly confine ourselves to single-hop networks, and then 
+mostly to infrastructure-based networks.
+ Let’s now dig deeper into the technical challenges that arise in wireless and 
+mobile networks. We’ll begin by first considering the individual wireless link, defer
+ring our discussion of mobility until later in this chapter.
+ 7.2 Wireless Links and Network Characteristics
+ Let’s begin by considering a simple wired network, say a home network, with a 
+wired Ethernet switch (see Section 6.4) interconnecting the hosts. If we replace 
+the wired Ethernet with a wireless 802.11 network, a wireless network interface 
+would replace the host’s wired Ethernet interface, and an access point would 
+replace the Ethernet switch, but virtually no changes would be needed at the net
+work layer or above. This suggests that we focus our attention on the link layer 
+when looking for important differences between wired and wireless networks. 
+Indeed, we can find a number of important differences between a wired link and 
+a wireless link:
+ • Decreasing signal strength. Electromagnetic radiation attenuates as it passes 
+through matter (e.g., a radio signal passing through a wall). Even in free space, 
+the signal will disperse, resulting in decreased signal strength (sometimes referred 
+to as path loss) as the distance between sender and receiver increases.
+ • Interference from other sources. Radio sources transmitting in the same frequency 
+band will interfere with each other. For example, 2.4 GHz wireless phones and 
+802.11b wireless LANs transmit in the same frequency band. Thus, the 802.11b 
+wireless LAN user talking on a 2.4 GHz wireless phone can expect that neither 
+the network nor the phone will perform particularly well. In addition to interfer
+ence from transmitting sources, electromagnetic noise within the environment 
+(e.g., a nearby motor, a microwave) can result in interference.
+ • Multipath propagation. Multipath propagation occurs when portions of the 
+electromagnetic wave reflect off objects and the ground, taking paths of different 
+lengths between a sender and receiver. This results in the blurring of the received 
+signal at the receiver. Moving objects between the sender and receiver can cause 
+multipath propagation to change over time.
+ For a detailed discussion of wireless channel characteristics, models, and measure
+ments, see [Anderson 1995].
+ The discussion above suggests that bit errors will be more common in wireless 
+links than in wired links. For this reason, it is perhaps not surprising that wireless 
+link protocols (such as the 802.11 protocol we’ll examine in the following section) 
+employ not only powerful CRC error detection codes, but also link-level relia
+ble-data-transfer protocols that retransmit corrupted frames.
+ Having considered the impairments that can occur on a wireless channel, let’s 
+next turn our attention to the host receiving the wireless signal. This host receives an 
+electromagnetic signal that is a combination of a degraded form of the original signal 
+transmitted by the sender (degraded due to the attenuation and multipath propagation 
+effects that we discussed above, among others) and background noise in the environ
+ment. The signal-to-noise ratio (SNR) is a relative measure of the strength of the 
+received signal (i.e., the information being transmitted) and this noise. The SNR 
+is typically measured in units of decibels (dB), a unit of measure that some think 
+is used by electrical engineers primarily to confuse computer scientists. The SNR, 
+measured in dB, is twenty times the ratio of the base-10 logarithm of the amplitude 
+of the received signal to the amplitude of the noise. For our purposes here, we need 
+only know that a larger SNR makes it easier for the receiver to extract the transmitted 
+signal from the background noise.
+ Figure 7.3 (adapted from [Holland 2001]) shows the bit error rate (BER)—
+ roughly speaking, the probability that a transmitted bit is received in error at the 
+receiver—versus the SNR for three different modulation techniques for encoding 
+information for transmission on an idealized wireless channel. The theory of modu
+lation and coding, as well as signal extraction and BER, is well beyond the scope of 
+ this text (see [Schwartz 1980] for a discussion of these topics). Nonetheless, Figure 
+7.3 illustrates several physical-layer characteristics that are important in understand
+ing higher-layer wireless communication protocols:
+ • For a given modulation scheme, the higher the SNR, the lower the BER. Since 
+a sender can increase the SNR by increasing its transmission power, a sender 
+can decrease the probability that a frame is received in error by increasing its 
+transmission power. Note, however, that there is arguably little practical gain in 
+increasing the power beyond a certain threshold, say to decrease the BER from 
+10-12 to 10-13. There are also disadvantages associated with increasing the trans
+mission power: More energy must be expended by the sender (an important con
+cern for battery-powered mobile users), and the sender’s transmissions are more 
+likely to interfere with the transmissions of another sender (see Figure 7.4(b)).
+ • For a given SNR, a modulation technique with a higher bit transmission rate 
+(whether in error or not) will have a higher BER. For example, in Figure 7.3, 
+with an SNR of 10 dB, BPSK modulation with a transmission rate of 1 Mbps has 
+a BER of less than 10-7, while with QAM16 modulation with a transmission rate 
+of 4 Mbps, the BER is 10-1, far too high to be practically useful. However, with 
+an SNR of 20 dB, QAM16 modulation has a transmission rate of 4 Mbps and a 
+BER of 10-7, while BPSK modulation has a transmission rate of only 1 Mbps 
+and a BER that is so low as to be (literally) “off the charts.” If one can tolerate a 
+BER of 10-7, the higher transmission rate offered by QAM16 would make it the 
+preferred modulation technique in this situation. These considerations give rise to 
+the final characteristic, described next.
+ • Dynamic selection of the physical-layer modulation technique can be used to 
+adapt the modulation technique to channel conditions. The SNR (and hence 
+ the BER) may change as a result of mobility or due to changes in the environ
+ment. Adaptive modulation and coding are used in cellular data systems and in 
+the 802.11 WiFi and 4G cellular data networks that we’ll study in Sections 7.3 
+and 7.4. This allows, for example, the selection of a modulation technique that 
+provides the highest transmission rate possible subject to a constraint on the BER, 
+for given channel characteristics.
+ A higher and time-varying bit error rate is not the only difference between a 
+wired and wireless link. Recall that in the case of wired broadcast links, all nodes 
+receive the transmissions from all other nodes. In the case of wireless links, the situ
+ation is not as simple, as shown in Figure 7.4. Suppose that Station A is transmit
+ting to Station B. Suppose also that Station C is transmitting to Station B. With the 
+so-called hidden terminal problem, physical obstructions in the environment (for 
+example, a mountain or a building) may prevent A and C from hearing each other’s 
+transmissions, even though A’s and C’s transmissions are indeed interfering at the 
+destination, B. This is shown in Figure 7.4(a). A second scenario that results in unde
+tectable collisions at the receiver results from the fading of a signal’s strength as it 
+propagates through the wireless medium. Figure 7.4(b) illustrates the case where A 
+and C are placed such that their signals are not strong enough to detect each other’s 
+transmissions, yet their signals are strong enough to interfere with each other at sta
+tion B. As we’ll see in Section 7.3, the hidden terminal problem and fading make 
+multiple access in a wireless network considerably more complex than in a wired 
+network.
+ 7.2.1 CDMA
+ Recall from Chapter 6 that when hosts communicate over a shared medium, a pro
+tocol is needed so that the signals sent by multiple senders do not interfere at the 
+receivers. In Chapter 6 we described three classes of medium access protocols: chan
+nel partitioning, random access, and taking turns. Code division multiple access 
+(CDMA) belongs to the family of channel partitioning protocols. It is prevalent in 
+wireless LAN and cellular technologies. Because CDMA is so important in the wire
+less world, we’ll take a quick look at CDMA now, before getting into specific wire
+less access technologies in the subsequent sections.
+ In a CDMA protocol, each bit being sent is encoded by multiplying the bit by 
+a signal (the code) that changes at a much faster rate (known as the chipping rate) 
+than the original sequence of data bits. Figure 7.5 shows a simple, idealized CDMA 
+encoding/decoding scenario. Suppose that the rate at which original data bits reach 
+the CDMA encoder defines the unit of time; that is, each original data bit to be 
+transmitted requires a one-bit slot time. Let di be the value of the data bit for the 
+ith bit slot. For mathematical convenience, we represent a data bit with a 0 value 
+as -1. Each bit slot is further subdivided into M mini-slots; in Figure 7.5, M = 8, 
+ although in practice M is much larger. The CDMA code used by the sender con
+sists of a sequence of M values, cm, m=1, . . . , M, each taking a +1 or -1 value. 
+In the example in Figure 7.5, the M-bit CDMA code being used by the sender is 
+(1, 1, 1, -1, 1, -1, -1, -1).
+ To illustrate how CDMA works, let us focus on the ith data bit, di . For the mth 
+mini-slot of the bit-transmission time of di , the output of the CDMA encoder, Zi,m, is 
+the value of di multiplied by the mth bit in the assigned CDMA code, cm:
+ Zi,m=di*cm (7.1)
+  In a simple world, with no interfering senders, the receiver would receive the encoded 
+bits, Zi,m, and recover the original data bit, di, by computing:
+ M
+ di = 1
+ Ma
+ m=1
+ Zi,m 
+# cm
+ (7.2)
+ The reader might want to work through the details of the example in Figure 7.5 to 
+see that the original data bits are indeed correctly recovered at the receiver using 
+Equation 7.2.
+ The world is far from ideal, however, and as noted above, CDMA must work in 
+the presence of interfering senders that are encoding and transmitting their data using 
+a different assigned code. But how can a CDMA receiver recover a sender’s original 
+data bits when those data bits are being tangled with bits being transmitted by other 
+senders? CDMA works under the assumption that the interfering transmitted bit sig
+nals are additive. This means, for example, that if three senders send a 1 value, and a 
+fourth sender sends a -1 value during the same mini-slot, then the received signal at 
+all receivers during that mini-slot is a 2 (since 1 + 1 + 1- 1 = 2). In the presence 
+of multiple senders, sender s computes its encoded transmissions, Zs i,m, in exactly 
+the same manner as in Equation 7.1. The value received at a receiver during the mth 
+mini-slot of the ith bit slot, however, is now the sum of the transmitted bits from all 
+N senders during that mini-slot:
+ N
+ Z* i, m = a
+ s=1
+ Zs
+ i,m
+ Amazingly, if the senders’ codes are chosen carefully, each receiver can recover the 
+data sent by a given sender out of the aggregate signal simply by using the sender’s 
+code in exactly the same manner as in Equation 7.2:
+ di = 1
+ M
+ Ma
+ m=1
+ *
+ Zi,m
+ # cm
+ (7.3)
+ as shown in Figure 7.6, for a two-sender CDMA example. The M-bit CDMA code 
+being used by the upper sender is (1, 1, 1, -1, 1, -1, -1, -1), while the CDMA code 
+being used by the lower sender is (1, -1, 1, 1, 1, -1, 1, 1). Figure 7.6 illustrates a 
+receiver recovering the original data bits from the upper sender. Note that the receiver 
+is able to extract the data from sender 1 in spite of the interfering transmission from  
+sender 2.
+ Recall our cocktail analogy from Chapter 6. A CDMA protocol is similar to 
+having partygoers speaking in multiple languages; in such circumstances humans are 
+actually quite good at locking into the conversation in the language they understand, 
+while filtering out the remaining conversations. We see here that CDMA is a parti
+tioning protocol in that it partitions the codespace (as opposed to time or frequency) 
+and assigns each node a dedicated piece of the codespace.
+ Our discussion here of CDMA is necessarily brief; in practice a number of dif
+ficult issues must be addressed. First, in order for the CDMA receivers to be able 
+ to extract a particular sender’s signal, the CDMA codes must be carefully chosen. 
+ Second, our discussion has assumed that the received signal strengths from various 
+senders are the same; in reality this can be difficult to achieve. There is a consid
+erable body of literature addressing these and other issues related to CDMA; see 
+ [Pickholtz 1982; Viterbi 1995] for details.
